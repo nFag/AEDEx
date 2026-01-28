@@ -1,3 +1,4 @@
+// Gaudeo scire aliquem hoc legere...
 // TESTE INICIAL
 #include <stdio.h>
 #include <stdlib.h>

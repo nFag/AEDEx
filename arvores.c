@@ -16,7 +16,7 @@ typedef struct estrutura {
     struct estrutura *esq;
     struct estrutura *dir;
     int bal;
-} NOAVL;
+} NOAVL; // por enquanto estou usando no avl, mas amanha ou depois eu troco tudo certinho
 
 void inicializarArvore (NO* *raiz){
     *raiz = NULL;
@@ -94,9 +94,71 @@ NO* ocorrenciaMaisProxima (NO* raiz, int ch){
     return resp;
 }
 
+//verifica se há algum caminho até a raiz que possua uma soma k
+bool caminhoSoma(NOAVL* raiz, int k){
+    if(raiz){
+        if(!raiz->esq && !raiz->dir){
+            if (k == 0) return true;
+                else return false;
+        }
+        k = abs(k - raiz->chave);
+        return caminhoSoma(raiz->esq, k) || caminhoSoma(raiz->dir, k);
+    }
+    return false;
+}
 
+//verificar profundidade da arvore
+int profundidade (NOAVL* raiz){
+    if(raiz){
+        int esq = profundidade(raiz->esq);
+        int dir = profundidade(raiz->dir);
+        if(esq > dir) return esq+1;
+            else return dir+1;
+    }
+    return 0;
+}
 
+//remove folhas da arvore
+void auxRemoveFolhas(NO** raiz) {
+    if(raiz || *raiz){
+        NO* atual = *raiz;
 
+        if(!atual->esq && !atual->dir){
+            free(atual);
+            *raiz = NULL;
+            return;
+        }
+
+        removeFolhas(atual->esq);
+        removeFolhas(atual->dir);
+    }
+}
+NO* removeFolhas(NO* raiz){
+    NO* resp = raiz;
+    auxRemoveFolhas(&raiz);
+    return resp;
+}
+
+//busca o nó mais profundo da arvore
+void auxProfundaAux(NO* raiz, int ch, int nivelAtual, int* maxNivel, NO** melhorNo) {
+    if(raiz){
+        if (raiz->chave == ch) {
+            if (nivelAtual > *maxNivel) {
+                *maxNivel = nivelAtual; 
+                *melhorNo = raiz;         
+            }
+        }
+        buscaProfundaAux(raiz->esq, ch, nivelAtual + 1, maxNivel, melhorNo);
+        buscaProfundaAux(raiz->dir, ch, nivelAtual + 1, maxNivel, melhorNo);
+    }
+
+}
+NO* maisProfundo(NO* raiz, int ch) {
+    NO* resposta = NULL;
+    int maxNivel = -1;
+    buscaProfundaAux(raiz, ch, 1, &maxNivel, &resposta);
+    return resposta;
+}
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
