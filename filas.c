@@ -3,11 +3,13 @@
 #include <stdbool.h>
 #include "filas.h"
 
+//Inicializa fila
 void InicializarFila(FILA *f){
     f->inicio = NULL;
     f->fim = NULL;
 }
 
+//Faz a soma dos inteiros de uma fila;
 int SomaTermosFila(FILA *f){
     if(!f->inicio) return 0;
     NOF* p = f->inicio;
