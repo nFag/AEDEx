@@ -2,27 +2,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "matrizes.h"
 #define MAXLIN 100
 #define MAXCOL 100
-
-typedef struct estrutura {
-    int info;
-    int lin;
-    int col;
-    struct estrutura *proxC;
-    struct estrutura *proxL;
-}NOM;
-
-typedef struct {
-    NOM* inicio;
-    int maxlin;
-    int maxcol;
-} MATRIZ;
-
-typedef struct {
-    NOM* lin[MAXLIN+1]; // para indexar até MAXLIN
-    NOM* col[MAXCOL+1]; // para indexar até MAXCOL
-} LISTASCR;
 
 // apostila
 // Inicialização
@@ -218,7 +200,7 @@ bool verificalistaDiagonal(NOM* teste, NOM* m){
         teste = teste->proxC;
         m = m->proxC;
     }
-    if((!teste && !m) || (teste && !m)) return false;
+    if((!teste && m) || (teste && !m)) return false;
 
     return true;
 }
@@ -248,10 +230,20 @@ bool ehTriangularSuperior (LISTASCR* m){
     for(int i = 1; i <= MAXLIN; i++){
         NOM* p = m->lin[i];
         while (p){
-            if(p->col > p->lin) return false;
+            if(p->lin > p->col) return false;
             p = p->proxC;
         }
     }
     return true;
 }
 
+// ... seus exercícios anteriores ...
+
+void menuMatrizes() {
+    printf("\n--- MENU MATRIZES ---\n");
+    printf("1. Testar Diagonal\n");
+    printf("0. Voltar\n");
+    // Logica de teste aqui
+    printf("Pressione ENTER para voltar...\n");
+    fflush(stdin); getchar();
+}

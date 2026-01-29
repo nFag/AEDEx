@@ -2,35 +2,22 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "arvores.h"
 
 
-// INICIALIZAR ARVORE BINARIA
-typedef struct estrutura {
-    int chave;
-    struct estrutura *esq;
-    struct estrutura *dir;
-} NO;
-
-typedef struct estrutura {
-    int chave;
-    struct estrutura *esq;
-    struct estrutura *dir;
-    int bal;
-} NOAVL; // por enquanto estou usando no avl, mas amanha ou depois eu troco tudo certinho
-
-void inicializarArvore (NO* *raiz){
+void inicializarArvore (NOA* *raiz){
     *raiz = NULL;
 }
 
 //EXERCICIOS COM ARVORES COMUNS
 
-bool arvoreVazia (NO* raiz){
+bool arvoreVazia (NOA* raiz){
     if(!raiz) return (true);
         else return (false);
 }
 
 //transforma as folhas da arvore em uma lista
-void listaFolhas (NO* raiz, NO** ultimo, NO** primeiro){
+void auxListaFolhas (NOA* raiz, NOA** ultimo, NOA** primeiro){
     if(raiz){
         if(!raiz->esq && !raiz->dir){
             if(!(*ultimo)){
@@ -41,19 +28,19 @@ void listaFolhas (NO* raiz, NO** ultimo, NO** primeiro){
                 (*ultimo) = raiz;
             }
         }
-        auxListaFolhas(raiz->esq, ultimo);
-        auxListaFolhas(raiz->dir, ultimo);
+        auxListaFolhas(raiz->esq, ultimo, primeiro);
+        auxListaFolhas(raiz->dir, ultimo, primeiro);
     }
 }
-NO* listaFolhas(NO* raiz){
-    NO* ultimo = NULL;
-    NO* primeiro = NULL;
+NOA* listaFolhas(NOA* raiz){
+    NOA* ultimo = NULL;
+    NOA* primeiro = NULL;
     auxListaFolhas(raiz, &ultimo, &primeiro);
     return primeiro;
 }
 
 //soma o intervalo fechado entre um intervalo
-int somaIntervalo(NO* raiz, int min, int max){
+int somaIntervalo(NOA* raiz, int min, int max){
     if(raiz){
         if(raiz->chave < min) return somaIntervalo(raiz->esq, min, max);
         if(raiz->chave > max) return somaIntervalo(raiz->dir, min, max);
@@ -66,7 +53,7 @@ int somaIntervalo(NO* raiz, int min, int max){
 }
 
 //verifica se cada no da arvore ou tem apenas dois filhos ou nenhum
-bool ehEstritamenteBinaria(NO* raiz){
+bool ehEstritamenteBinaria(NOA* raiz){
     if(raiz){
         if((!raiz->esq && raiz->dir) || (raiz->esq  && !raiz->dir)) return false;
         return ehEstritamenteBinaria(raiz->esq) && ehEstritamenteBinaria(raiz->dir);
@@ -75,7 +62,7 @@ bool ehEstritamenteBinaria(NO* raiz){
 }
 
 //verifica qual o nó com a chave respectiva que esta mais proximo da raiz
-void auxOcorrenciaMaisProxima (NO* raiz, int ch, int nivel, int* nivelMin, NO** resp){
+void auxOcorrenciaMaisProxima (NOA* raiz, int ch, int nivel, int* nivelMin, NOA** resp){
     if(raiz){
         if(raiz->chave == ch){
             if(nivel < (*nivelMin)){
@@ -87,9 +74,9 @@ void auxOcorrenciaMaisProxima (NO* raiz, int ch, int nivel, int* nivelMin, NO** 
         auxOcorrenciaMaisProxima(raiz->dir, ch, nivel+1, nivelMin, resp);
     }
 }
-NO* ocorrenciaMaisProxima (NO* raiz, int ch){
+NOA* ocorrenciaMaisProxima (NOA* raiz, int ch){
     int nivelMin = INT_MAX;
-    NO* resp = NULL;
+    NOA* resp = NULL;
     auxOcorrenciaMaisProxima(raiz, ch, 1, &nivelMin, &(resp));
     return resp;
 }
@@ -119,9 +106,9 @@ int profundidade (NOAVL* raiz){
 }
 
 //remove folhas da arvore
-void auxRemoveFolhas(NO** raiz) {
+void auxRemoveFolhas(NOA** raiz) {
     if(raiz || *raiz){
-        NO* atual = *raiz;
+        NOA* atual = *raiz;
 
         if(!atual->esq && !atual->dir){
             free(atual);
@@ -129,18 +116,18 @@ void auxRemoveFolhas(NO** raiz) {
             return;
         }
 
-        removeFolhas(atual->esq);
-        removeFolhas(atual->dir);
+        auxRemoveFolhas(&atual->esq);
+        auxRemoveFolhas(&atual->dir);
     }
 }
-NO* removeFolhas(NO* raiz){
-    NO* resp = raiz;
+NOA* removeFolhas(NOA* raiz){
+    NOA* resp = raiz;
     auxRemoveFolhas(&raiz);
     return resp;
 }
 
 //busca o nó mais profundo da arvore
-void auxProfundaAux(NO* raiz, int ch, int nivelAtual, int* maxNivel, NO** melhorNo) {
+void auxMaisProfundo(NOA* raiz, int ch, int nivelAtual, int* maxNivel, NOA** melhorNo) {
     if(raiz){
         if (raiz->chave == ch) {
             if (nivelAtual > *maxNivel) {
@@ -148,15 +135,14 @@ void auxProfundaAux(NO* raiz, int ch, int nivelAtual, int* maxNivel, NO** melhor
                 *melhorNo = raiz;         
             }
         }
-        buscaProfundaAux(raiz->esq, ch, nivelAtual + 1, maxNivel, melhorNo);
-        buscaProfundaAux(raiz->dir, ch, nivelAtual + 1, maxNivel, melhorNo);
+        auxMaisProfundo(raiz->esq, ch, nivelAtual + 1, maxNivel, melhorNo);
+        auxMaisProfundo(raiz->dir, ch, nivelAtual + 1, maxNivel, melhorNo);
     }
-
 }
-NO* maisProfundo(NO* raiz, int ch) {
-    NO* resposta = NULL;
+NOA* maisProfundo(NOA* raiz, int ch) {
+    NOA* resposta = NULL;
     int maxNivel = -1;
-    buscaProfundaAux(raiz, ch, 1, &maxNivel, &resposta);
+    auxMaisProfundo(raiz, ch, 1, &maxNivel, &resposta);
     return resposta;
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -174,7 +160,7 @@ bool ehABB (NO* raiz, int min, int max){
 }
 */
 
-void exibirMaiores(NO* raiz, int ch){
+void exibirMaiores(NOAVL* raiz, int ch){
     if(raiz){
         if(raiz->chave > ch){
             printf("%d", raiz->chave);
@@ -188,7 +174,7 @@ void exibirMaiores(NO* raiz, int ch){
 
 //EXERCICIOS COM AVL's
 
-NO* rotacaoL(NOAVL* p)
+NOAVL* rotacaoL(NOAVL* p)
 {
     NOAVL* u;
     NOAVL* v;
@@ -217,9 +203,9 @@ NO* rotacaoL(NOAVL* p)
     return (p);
 }
 
-NO* inserirAVL(NOAVL* p, int ch, bool* ajustar) {
+/*NOAVL* inserirAVL(NOAVL* p, int ch, bool* ajustar) {
     if(!p) {
-        p = (NO *) malloc(sizeof(NO));
+        p = (NOAVL*) malloc(sizeof(NOAVL));
         p->esq = NULL;
         p->dir = NULL;
         p->chave = ch;
@@ -258,4 +244,16 @@ NO* inserirAVL(NOAVL* p, int ch, bool* ajustar) {
         }
     return (p);
     }
+}
+*/
+
+// ... seus exercícios anteriores ...
+
+void menuArvores() {
+    printf("\n--- MENU ARVORES ---\n");
+    printf("1. Testar Insercao AVL\n");
+    printf("0. Voltar\n");
+    // Logica de teste aqui
+    printf("Pressione ENTER para voltar...\n");
+    fflush(stdin); getchar();
 }
