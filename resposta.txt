@@ -1,0 +1,4 @@
+bool funcao(NOA* raiz) {
+ if(!raiz) return true;
+ return false;
+}

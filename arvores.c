@@ -3,6 +3,125 @@
 #include <stdlib.h>
 #include <limits.h>
 #include "arvores.h"
+#include "juiz.h" // <--- ADICIONADO: Necessário para usar rodarJuiz e lerCodigo
+
+// --- HEADER PADRÃO (O que vai no topo do arquivo do aluno) ---
+const char* HEADER_ARVORE = 
+    "#include <stdio.h>\n"
+    "#include <stdlib.h>\n"
+    "#include <stdbool.h>\n"
+    "typedef struct no_arvore { int chave; struct no_arvore *esq, *dir; } NOA;\n"
+    "// Funcao auxiliar para criar no (disponivel pro aluno usar)\n"
+    "NOA* novoNo(int k) { NOA* n=(NOA*)malloc(sizeof(NOA)); n->chave=k; n->esq=NULL; n->dir=NULL; return n; }\n";
+
+
+// --- ESTRUTURA DE UMA QUESTÃO ---
+typedef struct {
+    char* titulo;
+    char* enunciado;
+    const char* teste;   // O main() que testa o aluno
+} QUESTAO;
+
+// --- BANCO DE QUESTÕES ---
+QUESTAO dbArvores[] = {
+    // QUESTÃO 0: Arvore Vazia
+    {
+        "Arvore Vazia",
+        "Escreva 'bool funcao(NOA* raiz)' que retorne true se for vazia.",
+        
+        // GABARITO (TESTE):
+        "int main() {\n"
+        "    NOA* raiz = NULL;\n"
+        "    if (funcao(raiz) == true) {\n" // Teste 1: Vazia
+        "        raiz = novoNo(10);\n"
+        "        if (funcao(raiz) == false) return 0; // Teste 2: Nao vazia (Sucesso)\n"
+        "    }\n"
+        "    return 1; // Falha\n"
+        "}\n"
+    },
+
+    // QUESTÃO 1: Lista de Folhas
+    {
+        "Lista Folhas",
+        "Escreva 'NOA* funcao(NOA* raiz)' que retorne uma lista ligada apenas com as folhas.\nUse os ponteiros da propria estrutura (esq aponta para o proximo).",
+        
+        // GABARITO (TESTE):
+        "int main() {\n"
+        "    // Arvore: 10 -> (Esq:5, Dir:15)\n"
+        "    NOA* raiz = novoNo(10);\n"
+        "    raiz->esq = novoNo(5);\n"
+        "    raiz->dir = novoNo(15);\n"
+        "    \n"
+        "    NOA* lista = funcao(raiz);\n"
+        "    \n"
+        "    // A lista deve ter 5 e depois 15 (ou vice-versa)\n"
+        "    if (lista != NULL && (lista->chave == 5 || lista->chave == 15)) {\n"
+        "         // Verifica se tem o segundo elemento\n"
+        "         if (lista->esq != NULL) return 0; // Sucesso (tem 2 elementos)\n"
+        "    }\n"
+        "    return 1; // Falha\n"
+        "}\n"
+    }
+};
+
+// Calcula automaticamente quantas questões tem no vetor
+int TOTAL_QUESTOES_ARV = sizeof(dbArvores) / sizeof(QUESTAO);
+
+// --- MENU DINÂMICO ---
+void menuArvores() {
+    int opcao = -1;
+
+    do {
+        system("cls");
+        printf("=== TREINAMENTO DE ARVORES ===\n");
+        
+        // Loop para imprimir o menu baseado no vetor
+        for (int i = 0; i < TOTAL_QUESTOES_ARV; i++) {
+            printf("[%d] %s\n", i + 1, dbArvores[i].titulo);
+        }
+        printf("[0] Voltar\n");
+        printf("\nEscolha o exercicio: ");
+        scanf("%d", &opcao);
+        fflush(stdin);
+
+        if (opcao > 0 && opcao <= TOTAL_QUESTOES_ARV) {
+            int i = opcao - 1; // Ajuste do índice
+            
+            system("cls");
+            printf(">>> EXERCICIO: %s <<<\n", dbArvores[i].titulo);
+            printf("%s\n\n", dbArvores[i].enunciado);
+            printf("IMPORTANTE: O nome da funcao deve ser 'funcao'.\n");
+            system("pause");
+
+            // 1. Cria arquivo pro aluno
+            FILE* f = fopen("resposta.txt", "w");
+            // Cria um esqueleto baseado na pergunta para ajudar o aluno
+            if (i == 0) fprintf(f, "bool funcao(NOA* raiz) {\n    // Seu codigo...\n}\n");
+            else fprintf(f, "NOA* funcao(NOA* raiz) {\n    // Seu codigo...\n}\n");
+            fclose(f);
+            
+            // 2. Abre Notepad
+            system("notepad.exe resposta.txt");
+            printf("Pressione ENTER para corrigir...");
+            getchar();
+
+            // 3. Lê e Chama o Juiz
+            char* codigo = lerCodigoDoAluno("resposta.txt");
+            if (codigo) {
+                // Passa: HEADER + CODIGO ALUNO + TESTE DA QUESTAO ESPECIFICA
+                int veredito = rodarJuiz(HEADER_ARVORE, codigo, dbArvores[i].teste);
+                
+                if (veredito == 0) printf("\n[SUCESSO] Parabens! Voce acertou.\n");
+                else if (veredito == -1) printf("\n[ERRO DE SINTAXE] Nao compilou.\n");
+                else printf("\n[FALHA] Sua logica nao passou no teste.\n");
+                
+                free(codigo);
+                system("pause");
+            }
+        }
+
+    } while (opcao != 0);
+}
 
 
 void inicializarArvore (NOA* *raiz){
@@ -246,14 +365,3 @@ NOAVL* rotacaoL(NOAVL* p)
     }
 }
 */
-
-// ... seus exercícios anteriores ...
-
-void menuArvores() {
-    printf("\n--- MENU ARVORES ---\n");
-    printf("1. Testar Insercao AVL\n");
-    printf("0. Voltar\n");
-    // Logica de teste aqui
-    printf("Pressione ENTER para voltar...\n");
-    fflush(stdin); getchar();
-}

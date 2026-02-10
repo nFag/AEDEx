@@ -9,13 +9,13 @@
 typedef struct no_fila{
     int info;
     struct no_fila *prox;
-}NOF
+}NOF;
 
 //Definindo a fila:
 typedef struct{
     NOF* inicio;
     NOF* fim;
-}FILA
+}FILA;
 
 void menuFilas();
 
