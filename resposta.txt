@@ -1,4 +1,22 @@
-bool funcao(NOA* raiz) {
- if(!raiz) return true;
- return false;
+//transforma as folhas da arvore em uma lista
+void auxListaFolhas (NOA* raiz, NOA** ultimo, NOA** primeiro){
+    if(raiz){
+        if(!raiz->esq && !raiz->dir){
+            if(!(*ultimo)){
+                (*ultimo) = raiz;
+                (*primeiro) = raiz;
+            } else {
+                (*ultimo)->esq = raiz;
+                (*ultimo) = raiz;
+            }
+        }
+        auxListaFolhas(raiz->esq, ultimo, primeiro);
+        auxListaFolhas(raiz->dir, ultimo, primeiro);
+    }
+}
+NOA* funcao(NOA* raiz){
+    NOA* ultimo = NULL;
+    NOA* primeiro = NULL;
+    auxListaFolhas(raiz, &ultimo, &primeiro);
+    return primeiro;
 }

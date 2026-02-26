@@ -3,16 +3,60 @@
 #include <stdlib.h>
 #include <limits.h>
 #include "arvores.h"
-#include "juiz.h" // <--- ADICIONADO: Necessário para usar rodarJuiz e lerCodigo
+#include "juiz.h"
 
-// --- HEADER PADRÃO (O que vai no topo do arquivo do aluno) ---
+// --- HEADER PADRÃO (O que vai no topo do arquivo TEMP) ---
 const char* HEADER_ARVORE = 
     "#include <stdio.h>\n"
     "#include <stdlib.h>\n"
     "#include <stdbool.h>\n"
+    
     "typedef struct no_arvore { int chave; struct no_arvore *esq, *dir; } NOA;\n"
-    "// Funcao auxiliar para criar no (disponivel pro aluno usar)\n"
-    "NOA* novoNo(int k) { NOA* n=(NOA*)malloc(sizeof(NOA)); n->chave=k; n->esq=NULL; n->dir=NULL; return n; }\n";
+    
+    "NOA* novoNo(int k) { NOA* n=(NOA*)malloc(sizeof(NOA));\n"
+    " n->chave=k;\n"
+    " n->esq=NULL;\n"
+    " n->dir=NULL;\n"
+    " return n; }\n"
+
+    "NOA* gerarArvore(int tipo) {\n"
+
+    "    if (tipo == 1) return NULL;\n"
+
+    "    // ARVORE 2: Apenas um no (Folha unica)\n"
+    "    if (tipo == 2) return novoNo(10);\n"
+    
+    "    // ARVORE 3: Pequena (3 nos)\n"
+    "    if (tipo == 3) {\n"
+    "        NOA* r = novoNo(10);\n"
+    "        r->esq = novoNo(5); r->dir = novoNo(15);\n"
+    "        return r;\n"
+    "    }\n"
+
+    "    // ARVORE 4: Torta para a esquerda (4 nos)\n"
+    "    if (tipo == 4) {\n"
+    "        NOA* r = novoNo(10);\n"
+    "        r->esq = novoNo(8);\n"
+    "        r->esq->esq = novoNo(5);\n"
+    "        r->esq->esq->esq = novoNo(2);\n"
+    "        return r;\n"
+    "    }\n"
+
+    "    // ARVORE 5: Arvore Binaria de Busca grande (7 nos)\n"
+    "    if (tipo == 5) {\n"
+    "        NOA* r = novoNo(10);\n"
+    "        r->esq = novoNo(5);\n"
+    "        r->dir = novoNo(20);\n"
+    "        r->esq->esq = novoNo(2);\n"
+    "        r->esq->dir = novoNo(7);\n"
+    "        r->dir->esq = novoNo(15);\n"
+    "        r->dir->dir = novoNo(25);\n"
+    "        return r;\n"
+    "    }\n"
+
+    "    return NULL;\n"
+    "}\n"
+    ;
 
 
 // --- ESTRUTURA DE UMA QUESTÃO ---
@@ -24,42 +68,44 @@ typedef struct {
 
 // --- BANCO DE QUESTÕES ---
 QUESTAO dbArvores[] = {
+    // retorna 1 se falhou
+    // retorna 0 se passou
+
     // QUESTÃO 0: Arvore Vazia
     {
         "Arvore Vazia",
-        "Escreva 'bool funcao(NOA* raiz)' que retorne true se for vazia.",
+        "Escreva 'bool funcao(NOA* raiz)' que retorne true se for vazia e false se não for.",
         
         // GABARITO (TESTE):
         "int main() {\n"
-        "    NOA* raiz = NULL;\n"
-        "    if (funcao(raiz) == true) {\n" // Teste 1: Vazia
-        "        raiz = novoNo(10);\n"
-        "        if (funcao(raiz) == false) return 0; // Teste 2: Nao vazia (Sucesso)\n"
-        "    }\n"
-        "    return 1; // Falha\n"
+        "    if (funcao(gerarArvore(1)) == false) return 1;\n"
+        "    gerarArvore(2);\n"
+        "    if (funcao(gerarArvore(2)) == true) return 1;\n"
+        "    return 0; //sucesso\n"
         "}\n"
     },
 
-    // QUESTÃO 1: Lista de Folhas
+    // QUESTÃO : Lista de Folhas
     {
         "Lista Folhas",
-        "Escreva 'NOA* funcao(NOA* raiz)' que retorne uma lista ligada apenas com as folhas.\nUse os ponteiros da propria estrutura (esq aponta para o proximo).",
+        "Escreva 'NOA* funcao(NOA* raiz)' que retorne uma lista ligada apenas com as folhas (a ordem não importa).\nUse os ponteiros da propria estrutura (esq aponta para o proximo).",
         
         // GABARITO (TESTE):
         "int main() {\n"
-        "    // Arvore: 10 -> (Esq:5, Dir:15)\n"
-        "    NOA* raiz = novoNo(10);\n"
-        "    raiz->esq = novoNo(5);\n"
-        "    raiz->dir = novoNo(15);\n"
-        "    \n"
-        "    NOA* lista = funcao(raiz);\n"
-        "    \n"
-        "    // A lista deve ter 5 e depois 15 (ou vice-versa)\n"
-        "    if (lista != NULL && (lista->chave == 5 || lista->chave == 15)) {\n"
-        "         // Verifica se tem o segundo elemento\n"
-        "         if (lista->esq != NULL) return 0; // Sucesso (tem 2 elementos)\n"
-        "    }\n"
-        "    return 1; // Falha\n"
+        "    NOA* teste1 = gerarArvore(1);\n"
+        "    if(funcao(teste1)) return 1;\n"
+        "    NOA* teste2 = gerarArvore(5);\n"
+        "    NOA* lista = funcao(teste2);\n"
+        "       int count = 0;\n"
+        "       int soma = 0;\n"
+        "       while (lista != NULL) {\n"
+        "           count++;\n"
+        "           soma += lista->chave;\n"
+        "           lista = lista->esq;\n"
+        "       }\n"
+        "       if (soma != 49) return 1; // Espera soma das folhas: 2 + 7 + 15 + 25 = 52\n"
+        "       if (count != 4) return 1; // Espera 4 folhas\n"
+        "       return 0;\n"
         "}\n"
     }
 };
@@ -73,7 +119,7 @@ void menuArvores() {
 
     do {
         system("cls");
-        printf("=== TREINAMENTO DE ARVORES ===\n");
+        printf("=== EXERCÍCIOS DE ARVORES ===\n");
         
         // Loop para imprimir o menu baseado no vetor
         for (int i = 0; i < TOTAL_QUESTOES_ARV; i++) {
@@ -90,7 +136,9 @@ void menuArvores() {
             system("cls");
             printf(">>> EXERCICIO: %s <<<\n", dbArvores[i].titulo);
             printf("%s\n\n", dbArvores[i].enunciado);
-            printf("IMPORTANTE: O nome da funcao deve ser 'funcao'.\n");
+            printf("------------------------------------------------------------------------\n");
+            printf("IMPORTANTE: O nome da funcao que retornará a resposta deve ser 'funcao'.\n");
+            printf("------------------------------------------------------------------------\n");
             system("pause");
 
             // 1. Cria arquivo pro aluno
